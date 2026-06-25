@@ -1,321 +1,274 @@
-// 'use strict';
-// const { Model, Sequelize , DataTypes} = require('sequelize');
-// const bcrypt = require('bcrypt');
-// const sequelize = require('../../config/database');
-// const appError = require('../../utils/appError');
 
+// const { DataTypes } = require('sequelize');
+// const bcrypt = require('bcrypt');
+
+// const sequelize = require('../config/database');
+// const AppError = require('../utils/appError');
+// const project = require('./project');
 
 // const users = sequelize.define(
-//        'users', 
-//        {
-//           id: {
+//     'users',
+//     {
+//         id: {
 //             allowNull: false,
 //             autoIncrement: true,
 //             primaryKey: true,
-//             type: DataTypes.INTEGER
-//           },
-//           userType: {
-//             type: DataTypes.ENUM('0','1','2')
-//           },
-//           firstName: {
-//             type: DataTypes.STRING
-//           },
-//           lastName: {
-//             type: DataTypes.STRING
-//           },
-//           email: {
-//             type: DataTypes.STRING
-//           },
-//           password: {
-//             type: DataTypes.STRING
-//           },
-//           confirmPassword: {
+//             type: DataTypes.INTEGER,
+//         },
+
+//         userType: {
+//             type: DataTypes.ENUM('0', '1', '2'),
+//             allowNull: false,
+//             validate: {
+//                 notNull: {
+//                     msg: 'userType cannot be null',
+//                 },
+//                 notEmpty: {
+//                     msg: 'userType cannot be empty',
+//                 },
+//             },
+//         },
+
+//         firstName: {
+//             type: DataTypes.STRING,
+//             allowNull: false,
+//             validate: {
+//                 notNull: {
+//                     msg: 'firstName cannot be null',
+//                 },
+//                 notEmpty: {
+//                     msg: 'firstName cannot be empty',
+//                 },
+//             },
+//         },
+
+//         lastName: {
+//             type: DataTypes.STRING,
+//             allowNull: false,
+//             validate: {
+//                 notNull: {
+//                     msg: 'lastName cannot be null',
+//                 },
+//                 notEmpty: {
+//                     msg: 'lastName cannot be empty',
+//                 },
+//             },
+//         },
+
+//         email: {
+//             type: DataTypes.STRING,
+//             allowNull: false,
+//             validate: {
+//                 notNull: {
+//                     msg: 'email cannot be null',
+//                 },
+//                 notEmpty: {
+//                     msg: 'email cannot be empty',
+//                 },
+//                 isEmail: {
+//                     msg: 'Invalid email id',
+//                 },
+//             },
+//         },
+
+//         password: {
+//             type: DataTypes.STRING,
+//             allowNull: false,
+//             validate: {
+//                 notNull: {
+//                     msg: 'password cannot be null',
+//                 },
+//                 notEmpty: {
+//                     msg: 'password cannot be empty',
+//                 },
+//             },
+//         },
+
+//         confirmPassword: {
 //             type: DataTypes.VIRTUAL,
-//             set(value){
-//               if(value === this.password){
-//                  const hashedPassword = bcrypt.hashSync(value, 10);
-//                   this.setDataValue('password', hashedPassword);
-//               }else{
-//                 throw new Error('passwords do not match')
-//               }
-//             }
-//           },
-//           createdAt: {
+//             set(value) {
+//                 if (!this.password || this.password.length < 7) {
+//                     throw new AppError(
+//                         'Password length must be greater than 7',
+//                         400
+//                     );
+//                 }
+
+//                 if (value === this.password) {
+//                     const hashPassword = bcrypt.hashSync(value, 10);
+//                     this.setDataValue('password', hashPassword);
+//                 } else {
+//                     throw new AppError(
+//                         'Password and confirm password must be the same',
+//                         400
+//                     );
+//                 }
+//             },
+//         },
+
+//         createdAt: {
 //             allowNull: false,
-//             type: DataTypes.DATE
-//           },
-//           updatedAt: {
+//             type: DataTypes.DATE,
+//         },
+
+//         updatedAt: {
 //             allowNull: false,
-//             type: DataTypes.DATE
-//           },
+//             type: DataTypes.DATE,
+//         },
+
 //         deletedAt: {
 //             type: DataTypes.DATE,
 //         },
-//       },
-//         {
-//           paranoid: true,
+//     },
+//     {
+//         paranoid: true,
 //         freezeTableName: true,
 //         modelName: 'users',
-//         }
-      
-        
-//       )
+//     }
+// );
 
-//  module.exports = users;     
+// user.hasMany(project, {
+//     foreignKey: 'createdBy',
+// });
 
-'use strict';
+// project.belongsTo(users, {
+//     foreignKey: 'createdBy',
+// });
+
+// module.exports = users;
+
 
 const bcrypt = require('bcrypt');
-const appError = require('../../utils/appError');
+const AppError = require('../../utils/appError');
 
 module.exports = (sequelize, DataTypes) => {
 
-  const users = sequelize.define(
-    'users',
-    {
-      id: {
-        allowNull: false,
-        autoIncrement: true,
-        primaryKey: true,
-        type: DataTypes.INTEGER
-      },
+    const users = sequelize.define(
+        'users',
+        {
+            id: {
+                allowNull: false,
+                autoIncrement: true,
+                primaryKey: true,
+                type: DataTypes.INTEGER,
+            },
 
-      userType: {
-        type: DataTypes.ENUM('0', '1', '2'),
-        allowNull: false,
-        validate: {
-          notNull:{
-            msg:'userType cannot be null',
+            userType: {
+                type: DataTypes.ENUM('0', '1', '2'),
+                allowNull: false,
+                validate: {
+                    notNull: {
+                        msg: 'userType cannot be null',
+                    },
+                    notEmpty: {
+                        msg: 'userType cannot be empty',
+                    },
+                },
+            },
 
-          },
-          notEmpty: {
-            msg: 'userType cannot be empty',
-          },
+            firstName: {
+                type: DataTypes.STRING,
+                allowNull: false,
+                validate: {
+                    notNull: {
+                        msg: 'firstName cannot be null',
+                    },
+                    notEmpty: {
+                        msg: 'firstName cannot be empty',
+                    },
+                },
+            },
+
+            lastName: {
+                type: DataTypes.STRING,
+                allowNull: false,
+                validate: {
+                    notNull: {
+                        msg: 'lastName cannot be null',
+                    },
+                    notEmpty: {
+                        msg: 'lastName cannot be empty',
+                    },
+                },
+            },
+
+            email: {
+                type: DataTypes.STRING,
+                allowNull: false,
+                validate: {
+                    notNull: {
+                        msg: 'email cannot be null',
+                    },
+                    notEmpty: {
+                        msg: 'email cannot be empty',
+                    },
+                    isEmail: {
+                        msg: 'Invalid email id',
+                    },
+                },
+            },
+
+            password: {
+                type: DataTypes.STRING,
+                allowNull: false,
+                validate: {
+                    notNull: {
+                        msg: 'password cannot be null',
+                    },
+                    notEmpty: {
+                        msg: 'password cannot be empty',
+                    },
+                },
+            },
+
+            confirmPassword: {
+                type: DataTypes.VIRTUAL,
+                set(value) {
+                    if (!this.password || this.password.length < 7) {
+                        throw new AppError(
+                            'Password length must be greater than 7',
+                            400
+                        );
+                    }
+
+                    if (value === this.password) {
+                        const hashPassword = bcrypt.hashSync(value, 10);
+                        this.setDataValue('password', hashPassword);
+                    } else {
+                        throw new AppError(
+                            'Password and confirm password must be the same',
+                            400
+                        );
+                    }
+                },
+            },
+
+            createdAt: {
+                allowNull: false,
+                type: DataTypes.DATE,
+            },
+
+            updatedAt: {
+                allowNull: false,
+                type: DataTypes.DATE,
+            },
+
+            deletedAt: {
+                type: DataTypes.DATE,
+            },
+        },
+        {
+            paranoid: true,
+            freezeTableName: true,
+            modelName: 'users',
         }
-      },
+    );
 
-      firstName: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        validate: {
-          notNull: {
-            msg: 'firstName cannot be null'
-          },
-          notEmpty: {
-            msg: 'firstName cannot be empty'
-          }
-        }
-      },
+    users.associate = (models) => {
+        users.hasMany(models.project, {
+            foreignKey: 'createdBy',
+        });
+    };
 
-      lastName: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        validate: {
-          notNull: {
-            msg: 'lastName cannot be null'
-          },
-          notEmpty: {
-            msg: 'lastName cannot be empty'
-          }
-        }
-      },
-
-      email: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        validate: {
-          notNull: {
-            msg: 'email cannot be null'
-          },
-          notEmpty: {
-            msg: 'email cannot be empty'
-          },
-          isEmail:{
-            msg:'invalid email format'
-          }
-        }
-      },
-
-      password: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        validate: {
-          notNull: {
-            msg: 'password cannot be null'
-          },
-          notEmpty: {
-            msg: 'password cannot be empty'
-          }
-        }
-      },
-
-      confirmPassword: {
-        type: DataTypes.VIRTUAL,
-        set(value) {
-          if(this.password.length < 7){
-            throw new appError('password must be at least 7 characters long', 400);
-          }
-
-          if (value === this.password) {
-            const hashPassword = bcrypt.hashSync(value, 10);
-            this.setDataValue('password', hashPassword);
-          } else {
-            throw new appError('passwords do not match ',400);
-          }
-        }
-      },
-
-      createdAt: {
-        allowNull: false,
-        type: DataTypes.DATE
-      },
-
-      updatedAt: {
-        allowNull: false,
-        type: DataTypes.DATE
-      },
-      deletedAt: {
-      
-        type: DataTypes.DATE,
-      },
-
-      
-    },
-    {
-      paranoid: true,
-      freezeTableName: true,
-      modelName: 'users'
-    }
-  );
-
-  return users;
+    return users;
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// 'use strict';
-// const {
-//   Model
-// } = require('DataTypess');
-// module.exports = (DataTypess, DataTypes) => {
-//   class user extends Model {
-//     /**
-//      * Helper method for defining associations.
-//      * This method is not a part of DataTypess lifecycle.
-//      * The `models/index` file will call this method automatically.
-//      */
-//     static associate(models) {
-//       // define association here
-//     }
-//   }
-//   user.init({
-//     userType: DataTypes.ENUM('0','1','2'),
-//     firstName: DataTypes.STRING,
-//     lastName: DataTypes.STRING,
-//     email: DataTypes.STRING,
-//     password: DataTypes.STRING,
-//     confirmPassword: DataTypes.VIRTUAL,
-//   }, {
-//     DataTypess,
-//     modelName: 'users',
-//     freezeTableName: true,
-//     tableName: 'users',
-//   });
-//   return user;
-// };
-
-
-
-// 'use strict';
-
-// const bcrypt = require('bcrypt');
-
-// module.exports = (sequelize, DataTypes) => {
-
-//   const User = sequelize.define(
-//     'users',
-//     {
-//       id: {
-//         allowNull: false,
-//         autoIncrement: true,
-//         primaryKey: true,
-//         type: DataTypes.INTEGER
-//       },
-
-//       userType: {
-//         type: DataTypes.ENUM('0', '1', '2')
-//       },
-
-//       firstName: {
-//         type: DataTypes.STRING
-//       },
-
-//       lastName: {
-//         type: DataTypes.STRING
-//       },
-
-//       email: {
-//         type: DataTypes.STRING
-//       },
-
-//       password: {
-//         type: DataTypes.STRING
-//       },
-
-//       confirmPassword: {
-//         type: DataTypes.VIRTUAL,
-
-//         set(value) {
-//           if (value === this.password) {
-//             const hashedPassword = bcrypt.hashSync(value, 10);
-//             this.setDataValue('password', hashedPassword);
-//           } else {
-//             throw new Error('Passwords do not match');
-//           }
-//         }
-//       },
-
-//       createdAt: {
-//         allowNull: false,
-//         type: DataTypes.DATE
-//       },
-
-//       updatedAt: {
-//         allowNull: false,
-//         type: DataTypes.DATE
-//       }
-//     },
-//     {
-//       freezeTableName: true
-//     }
-//   );
-
-//   return User;
-// };

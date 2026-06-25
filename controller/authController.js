@@ -71,5 +71,38 @@ const login = catchAsync(async (req,res,next)=>{
         token,
     })
     
+});
+
+const authentication = catchAsync(async (req,res,next)=>{
+//get token from header
+let idToken = '';
+
+if(req.headers.authorization && req.headers.authorization.startsWith('Bearer')){
+    idToken = req.headers.authorization.split(' ')[1]
+}
+if(!idToken){
+    return next(new appError('you are not logged in', 401))
+}
+//token verification
+const tokenDetail = jwt.verify(idToken, process.env.JWT_SECRET_KEY);
+// get user detail frmo db and add to req object
+const freshUser = await users.findByPk(tokenDetail.id);
+if(!freshUser){
+    return next(new appError('user does not exist', 401))
+}
+req.users = freshUser;
+return next();
+
 })
-module.exports = { signup,login }
+
+const restrictTo = (...userTypes) => {
+    const checkPermission = (req, res, next) => {
+        if (!userTypes.includes(req.users.userType)) {
+            return next(new appError('You do not have permission to perform this action', 403));
+           
+        }
+     return next();    
+    }
+return checkPermission;}
+module.exports = { signup,login, authentication, restrictTo }
+
