@@ -106,7 +106,13 @@ const deleteProject = catchAsync(async (req, res, next) => {
     if(!result) {
         return next(new AppError('invalid project id', 400))
     }
-   await result.destroy();
+   await project.destroy({
+  where: {
+    id: projectId,
+  },
+  force: true,
+});
+ 
 
     return res.json({
         status: 'success',

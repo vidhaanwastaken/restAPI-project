@@ -1,15 +1,6 @@
 const appError = require("../utils/appError")
 
 
-// const sendErrorDev = (error, res) => {
-   
-
-//     return res.status(500).json({
-//         status: 'error',
-//         message: error.message,
-        
-//     });
-// }
 const sendErrorDev = (error, res) => {
     console.log(error);
 
@@ -38,10 +29,6 @@ const sendErrorProd = (error,res)=>{
         message: 'something went very wrong'
     })
 }
-
-
-
-
 
 const globalErrorHandler = (err, req, res, next)=>{
 

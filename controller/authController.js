@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const catchAsync = require('../utils/catchAsync')
 const appError = require('../utils/appError')
+// const usertype = require("../db/models/user/usertype");
 
 const generateToken = (payload)=>{
     return jwt.sign(payload, process.env.JWT_SECRET_KEY,{
