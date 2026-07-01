@@ -1,29 +1,15 @@
 const appError = require("../utils/appError")
 
-// const sendErrorDev = (error,res)=>{
-// console.log("send error dev");
-//     const statusCode = error.statusCode || 500
-//     const status = error.status || 'error'
-//     const message = error.message
-//     const stack = error.stack
-//     console.log(message);
-    
 
-//     return res.status(500).json({
-//         status: 'error',
-//         message: 'something went very wrong'
-//     })
-// }
 const sendErrorDev = (error, res) => {
-    console.log("i am inside senderrordev");
     console.log(error);
 
-    return res.status(500).json({
-        status: 'error',
+    res.status(error.statusCode || 500).json({
+        status: error.status || 'error',
         message: error.message,
-        // stack: error.stack
+        stack: error.stack
     });
-}
+};
 
 const sendErrorProd = (error,res)=>{
     const statusCode = error.statusCode || 500
@@ -44,15 +30,15 @@ const sendErrorProd = (error,res)=>{
     })
 }
 
-
-
-
-
 const globalErrorHandler = (err, req, res, next)=>{
-    if(err.name === 'SequelizeValidationError') {
+
+    if(err.name === 'JsonWebTokenError') {    
         
-        err = new appError(err.errors[0].message, 400);
-        
+        err = new appError('invalid token', 401);  
+     }
+
+    if(err.name === 'SequelizeValidationError') {    
+        err = new appError(err.errors[0].message, 400);  
      }
     
     if(err.name === 'SequelizeUniqueConstraintError') {
@@ -68,3 +54,4 @@ const globalErrorHandler = (err, req, res, next)=>{
 
 }
 module.exports = globalErrorHandler
+
