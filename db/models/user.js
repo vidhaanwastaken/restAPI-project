@@ -102,6 +102,10 @@ module.exports = (sequelize, DataTypes) => {
                     }
                 },
             },
+            profileImage: {
+                type: DataTypes.STRING,
+                allowNull: true,
+            },
 
             createdAt: {
                 allowNull: false,

@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const catchAsync = require('../utils/catchAsync')
 const appError = require('../utils/appError')
+const { uploadImage , generateSignedUrl} = require("../utils/s3_service");
+
 // const usertype = require("../db/models/user/usertype");
 
 const generateToken = (payload)=>{
@@ -12,12 +14,47 @@ const generateToken = (payload)=>{
 });
 };
 
-const signup = catchAsync(async (req, res, next)=>{
+const uploadProfileImage = async (req, res) => {
+    
+    if (!req.file) {
+        return res.status(400).json({
+            success: false,
+            message: "No image uploaded",
+        });
+    }
+
+    const imageKey = await uploadImage(req.file);
+    const result = await generateSignedUrl(imageKey);
+
+   
+    await db.users.update(
+        { profileImage: imageKey },
+        {
+            where: {
+                id: req.users.id,
+            },
+        }
+    );
+
+    res.status(200).json({
+        success: true,
+        profileImage: imageKey,
+    });
+};
+
+const signup = catchAsync(async (req, res, next) => {
     const body = req.body;
+
     console.log("body", body);
 
-    if(!['1','2'].includes(body.userType)){
-        throw new appError('invalid user type', 400)
+    let imageKey = null;
+
+    if (req.file) {
+        imageKey = await uploadImage(req.file);
+    }
+
+    if (!['1', '2'].includes(body.userType)) {
+        throw new appError('invalid user type', 400);
     }
 
     const newUser = await users.create({
@@ -27,27 +64,26 @@ const signup = catchAsync(async (req, res, next)=>{
         email: body.email,
         password: body.password,
         confirmPassword: body.confirmPassword,
-    })
-    if(!newUser){
-        return next(new appError('failed to create the user', 400))
+        profileImage: imageKey,
+    });
+
+    if (!newUser) {
+        return next(new appError('failed to create the user', 400));
     }
 
-    const result = newUser.toJSON()
+    const result = newUser.toJSON();
 
-
-    delete result.password
-    delete result.deleteAt
-    
+    delete result.password;
+    delete result.deletedAt;
 
     result.token = generateToken({
-        id: result.id
-    })
-    
-    
+        id: result.id,
+    });
+
     return res.status(201).json({
-        status: 'success',
+        status: "success",
         data: result,
-    })
+    });
 });
 
 const login = catchAsync(async (req,res,next)=>{
@@ -96,6 +132,30 @@ return next();
 
 })
 
+const getProfileImage = catchAsync(async (req, res, next) => {
+
+    
+    const user = await users.findByPk(req.params.id);
+
+    if (!user) {
+        return next(new appError("User not found", 404));
+    }
+
+    const result = user.toJSON();
+
+    delete result.password;
+
+    if (result.profileImage) {
+        result.profileImage = await generateSignedUrl(result.profileImage);
+    }
+
+    return res.status(200).json({
+        status: "success",
+        data: result.profileImage,
+    });
+});
+
+
 const restrictTo = (...userTypes) => {
     const checkPermission = (req, res, next) => {
         if (!userTypes.includes(req.users.userType)) {
@@ -105,5 +165,5 @@ const restrictTo = (...userTypes) => {
      return next();    
     }
 return checkPermission;}
-module.exports = { signup,login, authentication, restrictTo }
+module.exports = { signup,login, authentication, restrictTo ,getProfileImage, uploadProfileImage};
 
