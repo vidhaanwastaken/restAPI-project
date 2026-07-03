@@ -6,23 +6,64 @@ const path = require("path");
 
 const s3Client = require("../config/s3");
 
-const uploadImage = async (file) => {
+// const uploadFile = async (file,folder) => {
+//     // const uniqueName =
+//     //     crypto.randomBytes(16).toString("hex") 
+//     //     path.extname(file.originalname);
+
+//     const key = `${folder}/${uniqueName}`;
+
+//     const command = new PutObjectCommand({
+//         Bucket: process.env.AWS_BUCKET_NAME,
+//         Key: key,
+//         Body: file.buffer,
+//         ContentType: file.mimetype,
+//     });
+
+//     await s3Client.send(command);
+
+//     return key;
+// };
+
+
+
+const uploadFile = async (file, folder) => {
+
     const uniqueName =
-        crypto.randomBytes(16).toString("hex") 
+        crypto.randomBytes(16).toString("hex") +
         path.extname(file.originalname);
 
-    const key = `users/${uniqueName}`;
+    const key = `${folder}/${uniqueName}`;
 
     const command = new PutObjectCommand({
         Bucket: process.env.AWS_BUCKET_NAME,
         Key: key,
         Body: file.buffer,
-        ContentType: file.mimetype,
+        ContentType: file.mimetype
     });
 
     await s3Client.send(command);
 
-    return key;
+    return {
+        
+        fileName: uniqueName
+    };
+};
+
+const getFileUrl = async (key) => {
+
+    const command = new GetObjectCommand({
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: key
+    });
+
+    return await getSignedUrl(
+        s3Client,
+        command,
+        {
+            expiresIn: 3600
+        }
+    );
 };
 
 const generateSignedUrl = async (key) => {
@@ -39,6 +80,7 @@ const generateSignedUrl = async (key) => {
 };
 
 module.exports = {
-    uploadImage,
+    uploadFile,
     generateSignedUrl,
+    getFileUrl, 
 };

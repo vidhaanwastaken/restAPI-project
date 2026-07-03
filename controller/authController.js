@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const catchAsync = require('../utils/catchAsync')
 const appError = require('../utils/appError')
-const { uploadImage , generateSignedUrl} = require("../utils/s3_service");
+const { uploadFile , generateSignedUrl} = require("../utils/s3_service");
 
 // const usertype = require("../db/models/user/usertype");
 
@@ -14,33 +14,33 @@ const generateToken = (payload)=>{
 });
 };
 
-const uploadProfileImage = async (req, res) => {
+// const uploadProfileImage = async (req, res) => {
     
-    if (!req.file) {
-        return res.status(400).json({
-            success: false,
-            message: "No image uploaded",
-        });
-    }
+//     if (!req.file) {
+//         return res.status(400).json({
+//             success: false,
+//             message: "No image uploaded",
+//         });
+//     }
 
-    const imageKey = await uploadImage(req.file);
-    const result = await generateSignedUrl(imageKey);
+//     const imageKey = await uploadFile(req.file, "users/profile");
+//     const result = await generateSignedUrl(imageKey);
 
    
-    await db.users.update(
-        { profileImage: imageKey },
-        {
-            where: {
-                id: req.users.id,
-            },
-        }
-    );
+//     await db.users.update(
+//         { profileImage: imageKey },
+//         {
+//             where: {
+//                 id: req.users.id,
+//             },
+//         }
+//     );
 
-    res.status(200).json({
-        success: true,
-        profileImage: imageKey,
-    });
-};
+//     res.status(200).json({
+//         success: true,
+//         profileImage: imageKey,
+//     });
+// };
 
 const signup = catchAsync(async (req, res, next) => {
     const body = req.body;
@@ -128,32 +128,33 @@ if(!freshUser){
     return next(new appError('user does not exist', 401))
 }
 req.users = freshUser;
+console.log("Authentication Middleware:", req.users);
 return next();
 
 })
 
-const getProfileImage = catchAsync(async (req, res, next) => {
+// const getProfileImage = catchAsync(async (req, res, next) => {
 
     
-    const user = await users.findByPk(req.params.id);
+//     const user = await users.findByPk(req.params.id);
 
-    if (!user) {
-        return next(new appError("User not found", 404));
-    }
+//     if (!user) {
+//         return next(new appError("User not found", 404));
+//     }
 
-    const result = user.toJSON();
+//     const result = user.toJSON();
 
-    delete result.password;
+//     delete result.password;
 
-    if (result.profileImage) {
-        result.profileImage = await generateSignedUrl(result.profileImage);
-    }
+//     if (result.profileImage) {
+//         result.profileImage = await generateSignedUrl(result.profileImage);
+//     }
 
-    return res.status(200).json({
-        status: "success",
-        data: result.profileImage,
-    });
-});
+//     return res.status(200).json({
+//         status: "success",
+//         data: result.profileImage,
+//     });
+// });
 
 
 const restrictTo = (...userTypes) => {
@@ -165,5 +166,5 @@ const restrictTo = (...userTypes) => {
      return next();    
     }
 return checkPermission;}
-module.exports = { signup,login, authentication, restrictTo ,getProfileImage, uploadProfileImage};
+module.exports = { signup,login, authentication, restrictTo};
 
