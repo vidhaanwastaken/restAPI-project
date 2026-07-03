@@ -1,16 +1,32 @@
+const {
+    signup,
+    login,
+    authentication,
+    getProfileImage
+} = require("../controller/authController");
 
-const { signup,login,authentication,getProfileImage,uploadProfileImage} = require('../controller/authController');
-const router = require('express').Router();
+const router = require("express").Router();
+
 const upload = require("../utils/multer");
+const uploadController = require("../controller/uploadController");
 
+router.post("/signup", upload.single("profileImage"), signup);
 
-router.post("/signup",upload.single("profileImage"),signup);
-router.post("/profile-image",authentication,upload.single("profileImage"),uploadProfileImage);
-router.post('/login', login)
-router.get("/users/:id",authentication,getProfileImage);
+router.post(
+    "/upload",
+    authentication,
+    upload.single("file"),
+    uploadController.uploadUserFile
+);
 
+router.get(
+    "/me",
+    authentication,
+    uploadController.getUserData
+);
+
+router.post("/login", login);
+
+router.get("/users/:id", authentication,);
 
 module.exports = router;
-
-
-

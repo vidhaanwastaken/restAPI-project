@@ -106,6 +106,15 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.STRING,
                 allowNull: true,
             },
+            panCard: {
+                type: DataTypes.STRING,
+                allowNull: true,
+            },
+            
+            audioFile: {
+                type: DataTypes.STRING,
+                allowNull: true,
+            },
 
             createdAt: {
                 allowNull: false,
