@@ -12,7 +12,7 @@ const deleteCache = require('../utils/rediscache').deleteCache;
 
 // const project = require('../db/models/project');
 // const users = require('../db/models/user');
-const AppError = require('../utils/appError');
+const appError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const useRedisCache = require('../utils/rediscache');
 
@@ -83,7 +83,7 @@ const getProjectById = catchAsync(async (req, res, next) => {
 
     
     if (!projectData) {
-        return next(new AppError('Invalid project ID', 404));
+        return next(new appError('Invalid project ID', 404));
     }
 
     
@@ -109,7 +109,7 @@ const updateProject = catchAsync(async (req, res, next) => {
     });
 
     if(!result) {
-        return next(new AppError('invalid project id', 400))
+        return next(new appError('invalid project id', 400))
     }
     result.title = body.title
     result.productImage = body.productImage
@@ -146,7 +146,7 @@ const deleteProject = catchAsync(async (req, res, next) => {
     });
 
     if(!result) {
-        return next(new AppError('invalid project id', 400))
+        return next(new appError('invalid project id', 400))
     }
    await project.destroy({
   where: {

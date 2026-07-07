@@ -5,7 +5,7 @@ module.exports = {
     const hashpassword = bcrypt.hashSync(password, 10);
     return queryInterface.bulkInsert('users', [
       {
-        userType: '0',
+        roleId: '1',
         firstName: 'John',
         lastName: 'Doe',
         email: process.env.ADMIN_EMAIL,
